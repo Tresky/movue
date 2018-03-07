@@ -68,21 +68,31 @@ function createComputedProperty(
   return getter
 }
 
-function getFromStoreEntries(vm: VueClass): FromMobxEntry[] {
-  const fromStore = vm.$options.fromMobx
-  if (!fromStore) {
-    return []
+function getFromStoreEntries(vm) {
+  var fromStore = vm.$options.fromMobx;
+  if (vm.$options.mixins) {
+    var fromStoreNew = vm.$options.mixins.map(function (mixin) { return mixin.fromMobx })
+      .reduce(function (accum, mobx) {
+        if (mobx) {
+          return Object.assign({}, accum, mobx)
+        } else {
+          return accum
+        }
+      }, {})
+    fromStore = Object.assign({}, fromStore, fromStoreNew)
   }
 
-  return Object.keys(fromStore).map(key => {
-    const field: any = fromStore[key]
-    const isFieldFunction = typeof field === 'function'
-    const isSetterFunction = !isFieldFunction && typeof field.set === 'function'
-
+  if (!fromStore) {
+    return [];
+  }
+  return Object.keys(fromStore).map(function (key) {
+    var field = fromStore[key];
+    var isFieldFunction = typeof field === 'function';
+    var isSetterFunction = !isFieldFunction && typeof field.set === 'function';
     return {
-      key,
+      key: key,
       get: isFieldFunction ? field : field.get,
       set: isSetterFunction ? field.set : null
-    }
-  })
+    };
+  });
 }
