@@ -61,5 +61,5 @@ typings/
 __coverage__
 
 # compile & build result
-lib
-dist
+# lib
+# dist
